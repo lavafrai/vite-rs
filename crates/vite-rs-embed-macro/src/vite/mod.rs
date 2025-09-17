@@ -44,36 +44,22 @@ pub mod build {
 
             p.to_str().unwrap().to_string()
         };
-
-        let vite_build = if cfg!(target_os = "windows") {
-            std::process::Command::new("cmd")
-                .arg("/c")
-                .arg("npx")
-                .arg("vite")
-                .arg("build")
-                .arg("--manifest") // force manifest generation to `.vite/manifest.json`
-                .arg("--outDir")
-                .arg(&absolute_output_path)
-                .current_dir(absolute_root_dir)
-                .spawn()
-                .expect("failed to build")
-                .wait()
-                .expect("failed to wait for build to complete")
-                .success()
-        } else {
-            std::process::Command::new("npx")
-                .arg("vite")
-                .arg("build")
-                .arg("--manifest") // force manifest generation to `.vite/manifest.json`
-                .arg("--outDir")
-                .arg(&absolute_output_path)
-                .current_dir(absolute_root_dir)
-                .spawn()
-                .expect("failed to build")
-                .wait()
-                .expect("failed to wait for build to complete")
-                .success()
-        };
+        #[cfg(windows)]
+        pub const NPX: &'static str = "npx.cmd";
+        #[cfg(not(windows))]
+        pub const NPX: &'static str = "npx";
+        let vite_build = std::process::Command::new(NPX)
+            .arg("vite")
+            .arg("build")
+            .arg("--manifest") // force manifest generation to `.vite/manifest.json`
+            .arg("--outDir")
+            .arg(&absolute_output_path)
+            .current_dir(absolute_root_dir)
+            .spawn()
+            .expect("failed to build")
+            .wait()
+            .expect("failed to wait for build to complete")
+            .success();
 
         if !vite_build {
             return Err(syn::Error::new(

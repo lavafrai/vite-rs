@@ -72,7 +72,7 @@ impl ViteServe {
             path.to_string()
         };
 
-        match self.assets.get(&format!("{}{}", request_file_path, query)) {
+        match self.assets.get(request_file_path) {
             Some(file) => {
                 let mut response = Response::builder();
 

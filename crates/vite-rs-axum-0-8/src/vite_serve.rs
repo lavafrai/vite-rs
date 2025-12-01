@@ -63,9 +63,13 @@ impl ViteServe {
             .map(|q| format!("?{}", q))
             .unwrap_or_default();
 
-        let request_file_path = if path.is_empty() { "index.html" } else {
-            if self.has_asset(format!("{}/index.html", path).as_str()) { format!("{}/index.html", path).as_str() }
-            else { path }
+        let index_candidate = format!("{}/index.html", path);
+        let request_file_path = if path.is_empty() {
+            "index.html".to_string()
+        } else if self.has_asset(index_candidate.as_str()) {
+            index_candidate
+        } else {
+            path.to_string()
         };
 
         match self.assets.get(&format!("{}{}", request_file_path, query)) {

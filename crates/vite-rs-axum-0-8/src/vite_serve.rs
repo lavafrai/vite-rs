@@ -63,8 +63,10 @@ impl ViteServe {
             .map(|q| format!("?{}", q))
             .unwrap_or_default();
 
-        // If the path is empty, default to index.html
-        let request_file_path = if path.is_empty() { "index.html" } else { path };
+        let request_file_path = if path.is_empty() { "index.html" } else {
+            if self.has_asset(format!("{}/index.html", path).as_str()) { format!("{}/index.html", path).as_str() }
+            else { path }
+        };
 
         match self.assets.get(&format!("{}{}", request_file_path, query)) {
             Some(file) => {
@@ -146,5 +148,9 @@ impl ViteServe {
                     .unwrap();
             }
         }
+    }
+
+    fn has_asset(&self, path: &str) -> bool {
+        self.assets.get(path).is_some()
     }
 }
